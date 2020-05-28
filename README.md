@@ -8,6 +8,9 @@ For each simulation you get the response as a Game entity containing the tanks, 
 Deployed at http://142.93.173.130:5000
 
 http://142.93.173.130:5000/tanks : see the list and details of all tanks
+
 http://142.93.173.130:5000/tanks/battles/{tank1}/{tank2} : Simulate the battle between selected tanks. Tank1 and tank2 are the ids of the tanks. 
+
 http://142.93.173.130:5000/tanks/battles/{tank1}/{tank2}/{noOfBattles} : Simulate battle between two tanks multiple times. NoOfBatlles is the number of simulations the will run in parallel.
+
 http://142.93.173.130:5000/tanks/battles//tanks/battles/{battleId} : Review a previous simulation. BattleId is the is of a simulation you want to review.
