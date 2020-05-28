@@ -2,10 +2,10 @@
 
 A very simple tank battle simulator API developed using Java, Spring Boot, JPA and multithreading with ExecutorService, Callable and Future.
 
-With this API you can see the tanks stored in DB, simulate battle between two tanks one time or multiple times using multithreadin an seeing the simulation for a gameId.
+With this API you can see the tanks stored in DB, simulate battle between two tanks one time or multiple times using multithreading and seeing the simulation for a gameId.
 For each simulation you get the response as a Game entity containing the tanks, the map with the obstacles, the list of rounds played with details for each round (tank position, orientation, hp) and the winner.
 
-Deployed at http://142.93.173.130:5000
+Deployed at:
 
 http://142.93.173.130:5000/tanks : see the list and details of all tanks
 
