@@ -1,9 +1,12 @@
 package com.amber.tanks.multithreading;
 
 import com.amber.tanks.entities.*;
+import com.amber.tanks.repositories.TankRepository;
 import com.amber.tanks.utils.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.security.SecureRandom;
 import java.util.HashSet;
@@ -14,15 +17,22 @@ import java.util.concurrent.Callable;
 @Log
 @RequiredArgsConstructor
 public class BattleSimulationTask implements Callable<Game> {
-    private final Optional<Tank> optionalTank1;
-    private final Optional<Tank> optionalTank2;
+    private final TankRepository tankRepository;
     private final MapUtils mapUtils;
     private final TankUtils tankUtils;
+    private final Long tankId1;
+    private final Long tankId2;
 
     private final SecureRandom random = new SecureRandom();
 
     @Override
     public Game call() {
+        Optional<Tank> optionalTank1 = tankRepository.findById(tankId1);
+        Optional<Tank> optionalTank2 = tankRepository.findById(tankId2);
+
+        if (!optionalTank1.isPresent() || !optionalTank2.isPresent()) {
+            return null;
+        }
         // for each simulation create a random map
         log.info("Starting thread");
         Map map = mapUtils.randomMap();

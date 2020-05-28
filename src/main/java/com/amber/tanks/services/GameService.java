@@ -1,6 +1,7 @@
 package com.amber.tanks.services;
 
 import com.amber.tanks.entities.Game;
+import com.amber.tanks.entities.Round;
 import com.amber.tanks.entities.Tank;
 import com.amber.tanks.multithreading.BattleSimulationTask;
 import com.amber.tanks.repositories.GameRepository;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -49,20 +51,13 @@ public class GameService {
     }
 
     public ResponseEntity<Map<Integer, Game>> simulateBattle(Long tankId1, Long tankId2, Long noOfBattles) {
-        Optional<Tank> optionalTank1 = tankRepository.findById(tankId1);
-        Optional<Tank> optionalTank2 = tankRepository.findById(tankId2);
-
-        if (!optionalTank1.isPresent() || !optionalTank2.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-
         // create thread pool and list of futures to get result of simulations
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         List<Future<Game>> futuresList = new ArrayList<>();
 
         // start the simulations and get the futures
         for (int i = 0; i < noOfBattles; i++) {
-            Callable<Game> task = new BattleSimulationTask(optionalTank1, optionalTank2, mapUtils, tankUtils);
+            Callable<Game> task = new BattleSimulationTask(tankRepository, mapUtils, tankUtils, tankId1, tankId2);
             Future<Game> future = executorService.submit(task);
             futuresList.add(future);
         }
@@ -77,10 +72,15 @@ public class GameService {
                 e.printStackTrace();
                 Thread.currentThread().interrupt();
             }
+            game.setRounds(game.getRounds().stream()
+                    .sorted(Comparator.comparing(Round::getRoundNumber))
+                    .collect(Collectors.toSet()));
 
             // save each simulation
             if (game != null) {
                 saveGame(game);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
 
             games.put(i, game);
@@ -108,11 +108,13 @@ public class GameService {
         }
 
         // use call method from callable task used in multiple simulations to simulate only one battle
-        Callable<Game> task = new BattleSimulationTask(optionalTank1, optionalTank2, mapUtils, tankUtils);
+        Callable<Game> task = new BattleSimulationTask(tankRepository, mapUtils, tankUtils, tankId1, tankId2);
         Game game = task.call();
 
         if (game != null) {
             saveGame(game);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
         return ResponseEntity.ok(game);

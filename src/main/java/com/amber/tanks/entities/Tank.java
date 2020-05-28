@@ -22,6 +22,7 @@ public class Tank {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonIgnore
     private Integer hp;
     private Integer driveSprocket;
     private Integer track;
@@ -40,6 +41,7 @@ public class Tank {
     @Transient
     private Orientation movementOrientation;
 
+    @JsonIgnore
     public boolean isAlive() {
         return hp > 0;
     }
@@ -49,16 +51,19 @@ public class Tank {
     }
 
     // speed of tank is determined by driveSprocket and track
+    @JsonIgnore
     public Integer getSpeed() {
         return (driveSprocket + track) / 2;
     }
 
     // visibility range is determined by viewport
+    @JsonIgnore
     public Integer getVisibilityDistance() {
         return 2 * viewport;
     }
 
     // shooting distance is determined by turret and barrel
+    @JsonIgnore
     public Integer getShootingDistance() {
         return (turret + barrelLength) / 2;
     }
